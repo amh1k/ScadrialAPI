@@ -43,7 +43,13 @@ func(app *application)serve() error {
 		app.logger.Info("caught signal", "signal", s.String())
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
-		shutdownError <- srv.Shutdown(ctx)
+		err := srv.Shutdown(ctx)
+		if err != nil {
+			shutdownError <- err
+		}
+		app.logger.Info("completing background tasks", "addr", srv.Addr)
+		app.wg.Wait()
+		shutdownError <- nil
 
 
 	}()
