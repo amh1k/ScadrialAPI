@@ -51,8 +51,11 @@ func (app *application)createMovieHandler(w http.ResponseWriter, r *http.Request
 func(app *application)showMovieHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
+		
 		http.NotFound(w, r)
 	}
+	// fmt.Println("VOLAA")
+	// fmt.Println("id is", id)
 	movie,err := app.models.Movies.Get(id)
 	if err != nil {
 		switch{

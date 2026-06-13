@@ -53,7 +53,7 @@ func (m MovieModel)Get(id int64)(*Movie, error) {
         return nil, ErrRecordNotFound
     }
     query := `
-    SELECT, id, created_at, title, year, runtime, genres, version
+    SELECT id, created_at, title, year, runtime, genres, version
     FROM movies
     WHERE id = $1`
 
@@ -77,6 +77,7 @@ func (m MovieModel)Get(id int64)(*Movie, error) {
             return nil, ErrRecordNotFound
         
         default:
+            
             return nil, err
         }
 
@@ -102,8 +103,10 @@ func (m MovieModel)Update(movie * Movie)error {
     if err != nil {
         switch {
         case errors.Is(err, sql.ErrNoRows):
+            
             return ErrEditConflict
-        default: 
+        default:
+            
             return err
         }
     }
