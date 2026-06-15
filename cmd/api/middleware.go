@@ -142,3 +142,22 @@ func (app *application)requireActivatedUser(next http.HandlerFunc) http.HandlerF
 
 
 }
+func (app *application)requirePermission(code string, next http.HandlerFunc)http.HandlerFunc {
+	fn := func(w http.ResponseWriter, r * http.Request) {
+		user := app.contextGetUser(r)
+		permissions, err := app.models.Permissions.GetAllForUser(user.ID)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+
+		}
+		if !permissions.Include(code) {
+			app.notPermittedResponse(w, r)
+			return
+		}
+		next.ServeHTTP(w, r)
+
+	}
+	// wrapping this with the require activation middleware since activation is required for permission based routes
+	return app.requireActivatedUser(fn)
+}
