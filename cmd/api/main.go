@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"expvar"
 	"flag"
+	"fmt"
 	"log/slog"
 	"os"
 	"runtime"
@@ -15,9 +16,12 @@ import (
 	_ "github.com/lib/pq"
 	"scadrialapi.abdulmoiz.net/internal/data"
 	"scadrialapi.abdulmoiz.net/internal/mailer"
+	"scadrialapi.abdulmoiz.net/internal/vcs"
 )
 
-const version = "1.0.0"
+var (
+version = vcs.Version()
+)
 
 type config struct {
 	port int
@@ -81,8 +85,14 @@ func main() {
 		cfg.cors.trustedOrigins = strings.Fields(val)
 		return nil
 	})
+	displayVersion := flag.Bool("version", false, "Display version and exit")
+	
 
 	flag.Parse()
+	if *displayVersion {
+		fmt.Printf("Version:\t%s\n", version)
+		os.Exit(0)
+	}
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	db, err := openDB(cfg)
 	if err != nil {
