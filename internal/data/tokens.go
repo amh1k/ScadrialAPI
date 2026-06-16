@@ -11,25 +11,24 @@ import (
 	"scadrialapi.abdulmoiz.net/internal/validator"
 )
 
-
 const (
-ScopeActivation = "activation"
-ScopeAuthentication = "authentication"
+	ScopeActivation     = "activation"
+	ScopeAuthentication = "authentication"
 )
 
 type Token struct {
-	Plaintext string `json:"token"`
-	Hash []byte `json:"-"`
-	UserID int64 `json:"-"`
-	Expiry time.Time `json:"expiry"`
-	Scope string `json:"-"`
-
+	Plaintext string    `json:"token"`
+	Hash      []byte    `json:"-"`
+	UserID    int64     `json:"-"`
+	Expiry    time.Time `json:"expiry"`
+	Scope     string    `json:"-"`
 }
-func generateToken(userID int64, ttl  time.Duration, scope string)(*Token, error) {
+
+func generateToken(userID int64, ttl time.Duration, scope string) (*Token, error) {
 	token := &Token{
 		UserID: userID,
 		Expiry: time.Now().Add(ttl),
-		Scope: scope, 
+		Scope:  scope,
 	}
 	randomBytes := make([]byte, 16)
 	_, err := rand.Read(randomBytes)
@@ -45,10 +44,12 @@ func ValidateTokenPlaintext(v *validator.Validator, tokenPlaintext string) {
 	v.Check(tokenPlaintext != "", "token", "must be provided")
 	v.Check(len(tokenPlaintext) == 26, "token", "must be 26 bytes long")
 }
+
 type TokenModel struct {
 	DB *sql.DB
 }
-func(m TokenModel)New(userID int64, ttl time.Duration, scope string)(*Token, error) {
+
+func (m TokenModel) New(userID int64, ttl time.Duration, scope string) (*Token, error) {
 	token, err := generateToken(userID, ttl, scope)
 	if err != nil {
 		return nil, err
@@ -56,7 +57,7 @@ func(m TokenModel)New(userID int64, ttl time.Duration, scope string)(*Token, err
 	err = m.Insert(token)
 	return token, err
 }
-func(m TokenModel)Insert(token* Token) error {
+func (m TokenModel) Insert(token *Token) error {
 	query := `
 	INSERT INTO tokens (hash, user_id, expiry, scope)
 	VALUES ($1, $2, $3, $4)`
@@ -65,11 +66,10 @@ func(m TokenModel)Insert(token* Token) error {
 	defer cancel()
 	_, err := m.DB.ExecContext(ctx, query, args...)
 	return err
-	
+
 }
 
-
-func(m TokenModel)DeleteAllForUser(scope string, userID int64) error {
+func (m TokenModel) DeleteAllForUser(scope string, userID int64) error {
 	query := `
 	DELETE FROM tokens
 	WHERE scope = $1 AND user_id = $2`

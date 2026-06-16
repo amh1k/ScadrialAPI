@@ -9,11 +9,10 @@ import (
 	"scadrialapi.abdulmoiz.net/internal/validator"
 )
 
-
-func(app *application)registerUserHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		Name string `json:"name"`
-		Email string `json:"email"`
+		Name     string `json:"name"`
+		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
 	err := app.readJSON(w, r, &input)
@@ -21,9 +20,9 @@ func(app *application)registerUserHandler(w http.ResponseWriter, r *http.Request
 		app.badRequestResponse(w, r, err)
 		return
 	}
-	user := &data.User {
-		Name: input.Name,
-		Email: input.Email,
+	user := &data.User{
+		Name:      input.Name,
+		Email:     input.Email,
 		Activated: false,
 	}
 	err = user.Password.Set(input.Password)
@@ -40,11 +39,11 @@ func(app *application)registerUserHandler(w http.ResponseWriter, r *http.Request
 
 	if err != nil {
 		switch {
-			case errors.Is(err, data.ErrDuplicateEmail):
-				v.AddError("email", "a user with this email address already exists")
-				app.failedValidationResponse(w, r, v.Errors)
-			default:
-				app.serverErrorResponse(w, r, err)
+		case errors.Is(err, data.ErrDuplicateEmail):
+			v.AddError("email", "a user with this email address already exists")
+			app.failedValidationResponse(w, r, v.Errors)
+		default:
+			app.serverErrorResponse(w, r, err)
 
 		}
 		return
@@ -63,18 +62,18 @@ func(app *application)registerUserHandler(w http.ResponseWriter, r *http.Request
 	app.background(func() {
 		data := map[string]any{
 			"activationToken": token.Plaintext,
-			"userID": user.ID,
+			"userID":          user.ID,
 		}
 		err = app.mailer.Send(user.Email, "user_welcome.tmpl", data)
-		if err !=  nil {
+		if err != nil {
 			app.logger.Error(err.Error())
 		}
 	})
 	err = app.writeJSON(w, http.StatusCreated, envelope{"user": user}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
-	} 
-	
+	}
+
 }
 func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
@@ -82,10 +81,10 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 	}
 	err := app.readJSON(w, r, &input)
 	if err != nil {
-		app.badRequestResponse(w,r,err)
+		app.badRequestResponse(w, r, err)
 	}
 	v := validator.New()
-	if data.ValidateTokenPlaintext(v, input.TokenPlaintext); !v.Valid(){
+	if data.ValidateTokenPlaintext(v, input.TokenPlaintext); !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
@@ -95,13 +94,12 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 		case errors.Is(err, data.ErrRecordNotFound):
 			v.AddError("token", "invalid or expired activation token")
 			app.failedValidationResponse(w, r, v.Errors)
-		
+
 		default:
 			app.serverErrorResponse(w, r, err)
-		
+
 		}
 		return
-
 
 	}
 	user.Activated = true
@@ -122,8 +120,7 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 	}
 	err = app.writeJSON(w, http.StatusOK, envelope{"user": user}, nil)
 	if err != nil {
-	app.serverErrorResponse(w, r, err)
+		app.serverErrorResponse(w, r, err)
 	}
-
 
 }

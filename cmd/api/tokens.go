@@ -8,10 +8,11 @@ import (
 	"scadrialapi.abdulmoiz.net/internal/data"
 	"scadrialapi.abdulmoiz.net/internal/validator"
 )
-func (app *application)createAuthenticationTokenHandler(w http.ResponseWriter, r *http.Request) {
+
+func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-	Email string `json:"email"`
-	Password string `json:"password"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
 	}
 	err := app.readJSON(w, r, &input)
 	if err != nil {
@@ -27,13 +28,13 @@ func (app *application)createAuthenticationTokenHandler(w http.ResponseWriter, r
 	}
 	user, err := app.models.Users.GetByEmail(input.Email)
 	if err != nil {
-	switch {
+		switch {
 		case errors.Is(err, data.ErrRecordNotFound):
 			app.invalidCredentialsResponse(w, r)
 		default:
 			app.serverErrorResponse(w, r, err)
-	}
-	return
+		}
+		return
 	}
 	match, err := user.Password.Matches(input.Password)
 	if err != nil {
@@ -53,7 +54,5 @@ func (app *application)createAuthenticationTokenHandler(w http.ResponseWriter, r
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
-	
 
 }
-
