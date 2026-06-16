@@ -57,7 +57,10 @@ type application struct {
 	// sync.WaitGroup type is a valid, useable, sync.WaitGroup with a 'counter' value of 0,
 	// so we don't need to do anything else to initialize it before we can use it.
 	wg sync.WaitGroup
+	users data.UserModelInterface
+	movies data.MovieModelInterface
 }
+
 
 func main() {
 	var cfg config
@@ -111,11 +114,15 @@ func main() {
 	expvar.Publish("timestamp", expvar.Func(func() any {
 		return time.Now().Unix()
 	}))
+	movies := data.MovieModel{DB: db}
+	users := data.UserModel{DB: db}
+	permissions := data.PermissionModel{DB: db}
+	tokens := data.TokenModel{}
 
 	app := &application{
 		config: cfg,
 		logger: logger,
-		models: data.NewModels(db),
+		models: data.NewModels(movies, users, tokens,permissions),
 		mailer: mailer.New(cfg.smtp.host, cfg.smtp.port, cfg.smtp.username, cfg.smtp.password, cfg.smtp.sender),
 	}
 

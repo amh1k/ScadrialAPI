@@ -38,6 +38,16 @@ func ValidateMovie(v *validator.Validator, movie *Movie) {
 type MovieModel struct {
 	DB *sql.DB
 }
+type MovieModelInterface interface {
+	Insert(movie *Movie) error
+	Get(id int64)(*Movie, error)
+	Delete(id int64)error
+	Update(movie *Movie) error
+	GetAll(title string, genres []string, filters Filters)([]*Movie, Metadata, error)
+	
+	
+
+}
 
 func (m MovieModel) Insert(movie *Movie) error {
 	query := `

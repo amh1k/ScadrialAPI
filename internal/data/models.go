@@ -1,7 +1,6 @@
 package data
 
 import (
-	"database/sql"
 	"errors"
 )
 
@@ -11,17 +10,17 @@ var (
 )
 
 type Models struct {
-	Movies      MovieModel
-	Users       UserModel
+	Movies      MovieModelInterface
+	Users       UserModelInterface
 	Tokens      TokenModel
 	Permissions PermissionModel
 }
 
-func NewModels(db *sql.DB) Models {
+func NewModels(movies MovieModelInterface, users UserModelInterface, tokens TokenModel, permission PermissionModel) Models {
 	return Models{
-		Movies:      MovieModel{DB: db},
-		Users:       UserModel{DB: db},
-		Tokens:      TokenModel{DB: db},
-		Permissions: PermissionModel{DB: db},
+		Movies:      movies,
+		Users:       users,
+		Tokens:      tokens,
+		Permissions: permission,
 	}
 }
