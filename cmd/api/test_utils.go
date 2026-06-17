@@ -3,6 +3,8 @@ package main
 import (
 	"io"
 	"log/slog"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"scadrialapi.abdulmoiz.net/internal/data"
@@ -21,4 +23,10 @@ func NewTestApplication(t *testing.T, mockUsers data.UserModelInterface, mockPer
 		},
 		mailer: mailer.New("", 25, "", "", ""),
 	}
+}
+func newTestServer(t *testing.T, h http.Handler) *httptest.Server{
+	t.Helper()
+	ts := httptest.NewServer(h)
+	return ts
+
 }
