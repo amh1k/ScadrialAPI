@@ -9,6 +9,17 @@ import (
 	"scadrialapi.abdulmoiz.net/internal/validator"
 )
 
+// @Summary Register user
+// @Description Creates a new user account and sends an activation email.
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param input body registerUserRequest true "Registration payload"
+// @Success 201 {object} userResponse
+// @Failure 400 {object} errorResponse
+// @Failure 422 {object} validationErrorResponse
+// @Failure 500 {object} errorResponse
+// @Router /v1/users [post]
 func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Name     string `json:"name"`
@@ -75,6 +86,19 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 }
+
+// @Summary Activate user
+// @Description Activates a user account using an activation token.
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param input body activateUserRequest true "Activation token"
+// @Success 200 {object} userResponse
+// @Failure 400 {object} errorResponse
+// @Failure 409 {object} conflictErrorResponse
+// @Failure 422 {object} validationErrorResponse
+// @Failure 500 {object} errorResponse
+// @Router /v1/users/activated [put]
 func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		TokenPlaintext string `json:"token"`

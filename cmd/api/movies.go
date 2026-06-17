@@ -10,6 +10,20 @@ import (
 	"scadrialapi.abdulmoiz.net/internal/validator"
 )
 
+// @Summary Create movie
+// @Description Creates a new movie record.
+// @Tags movies
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param input body createMovieRequest true "Movie payload"
+// @Success 201 {object} movieResponse
+// @Failure 400 {object} errorResponse
+// @Failure 401 {object} authErrorResponse
+// @Failure 403 {object} errorResponse
+// @Failure 422 {object} validationErrorResponse
+// @Failure 500 {object} errorResponse
+// @Router /v1/movies [post]
 func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Title   string       `json:"title"`
@@ -45,6 +59,19 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 }
+
+// @Summary Get movie
+// @Description Fetches a single movie by ID.
+// @Tags movies
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Movie ID"
+// @Success 200 {object} movieResponse
+// @Failure 401 {object} authErrorResponse
+// @Failure 403 {object} errorResponse
+// @Failure 404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Router /v1/movies/{id} [get]
 func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
@@ -74,6 +101,25 @@ func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request)
 	//     http.Error(w, "The server encountered a problem and could not process your request", http.StatusInternalServerError)
 	// }
 }
+
+// @Summary Update movie
+// @Description Partially updates a movie by ID.
+// @Tags movies
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Movie ID"
+// @Param X-Expected-Version header string false "Expected current movie version for optimistic locking"
+// @Param input body updateMovieRequest true "Movie fields to update"
+// @Success 200 {object} movieResponse
+// @Failure 400 {object} errorResponse
+// @Failure 401 {object} authErrorResponse
+// @Failure 403 {object} errorResponse
+// @Failure 404 {object} errorResponse
+// @Failure 409 {object} conflictErrorResponse
+// @Failure 422 {object} validationErrorResponse
+// @Failure 500 {object} errorResponse
+// @Router /v1/movies/{id} [patch]
 func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
@@ -82,14 +128,14 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 
 	}
 	movie, err := app.models.Movies.Get(id)
-	
+
 	if err != nil {
-		
+
 		switch {
 		case errors.Is(err, data.ErrRecordNotFound):
 			app.notFoundResponse(w, r)
 		default:
-			
+
 			app.serverErrorResponse(w, r, err)
 		}
 		return
@@ -108,7 +154,7 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 	}
 	err = app.readJSON(w, r, &input)
 	if err != nil {
-		
+
 		app.badRequestResponse(w, r, err)
 		return
 
@@ -138,7 +184,7 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 		case errors.Is(err, data.ErrEditConflict):
 			app.editConflictResponse(w, r)
 		default:
-			
+
 			app.serverErrorResponse(w, r, err)
 		}
 		return
@@ -149,6 +195,19 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 		app.serverErrorResponse(w, r, err)
 	}
 }
+
+// @Summary Delete movie
+// @Description Deletes a movie by ID.
+// @Tags movies
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Movie ID"
+// @Success 200 {object} messageResponse
+// @Failure 401 {object} authErrorResponse
+// @Failure 403 {object} errorResponse
+// @Failure 404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Router /v1/movies/{id} [delete]
 func (app *application) deleteMovieHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
@@ -171,6 +230,23 @@ func (app *application) deleteMovieHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 }
+
+// @Summary List movies
+// @Description Returns a paginated list of movies with optional search and sorting filters.
+// @Tags movies
+// @Produce json
+// @Security BearerAuth
+// @Param title query string false "Movie title full-text search"
+// @Param genres query string false "Comma-separated genres"
+// @Param page query int false "Page number" default(1)
+// @Param page_size query int false "Items per page" default(20)
+// @Param sort query string false "Sort field: id, title, year, runtime, -id, -title, -year, -runtime" default(id)
+// @Success 200 {object} moviesResponse
+// @Failure 401 {object} authErrorResponse
+// @Failure 403 {object} errorResponse
+// @Failure 422 {object} validationErrorResponse
+// @Failure 500 {object} errorResponse
+// @Router /v1/movies [get]
 func (app *application) listMoviesHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Title  string

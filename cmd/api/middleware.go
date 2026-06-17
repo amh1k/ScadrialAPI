@@ -5,6 +5,7 @@ import (
 	"expvar"
 	"fmt"
 	"net/http"
+	"path"
 	"strconv"
 	"strings"
 	"sync"
@@ -84,6 +85,11 @@ func (app *application) rateLimit(next http.Handler) http.Handler {
 	}()
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasPrefix(path.Clean(r.URL.Path), "/swagger") {
+			next.ServeHTTP(w, r)
+			return
+		}
+
 		if app.config.limiter.enabled {
 			ip := realip.FromRequest(r)
 

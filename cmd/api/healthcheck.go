@@ -4,6 +4,13 @@ import (
 	"net/http"
 )
 
+// @Summary Healthcheck
+// @Description Returns API health and build information.
+// @Tags healthcheck
+// @Produce json
+// @Success 200 {object} healthcheckResponse
+// @Failure 500 {object} errorResponse
+// @Router /v1/healthcheck [get]
 func (app *application) healthcheckHandler(w http.ResponseWriter, r *http.Request) {
 	// fmt.Fprintln(w, "status: available")
 	// fmt.Fprintf(w, "environment: %s\n", app.config.env)

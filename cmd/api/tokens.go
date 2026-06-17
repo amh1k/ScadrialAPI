@@ -9,6 +9,18 @@ import (
 	"scadrialapi.abdulmoiz.net/internal/validator"
 )
 
+// @Summary Create authentication token
+// @Description Authenticates a user and returns a bearer token.
+// @Tags authentication
+// @Accept json
+// @Produce json
+// @Param input body createAuthenticationTokenRequest true "Login credentials"
+// @Success 201 {object} authenticationTokenResponse
+// @Failure 400 {object} errorResponse
+// @Failure 401 {object} errorResponse
+// @Failure 422 {object} validationErrorResponse
+// @Failure 500 {object} errorResponse
+// @Router /v1/tokens/authentication [post]
 func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Email    string `json:"email"`

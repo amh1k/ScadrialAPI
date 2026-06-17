@@ -1,0 +1,585 @@
+basePath: /
+definitions:
+  main.activateUserRequest:
+    properties:
+      token:
+        example: ABCDEFGHIJKLMNOPQRSTUVWX12
+        type: string
+    type: object
+  main.authErrorResponse:
+    properties:
+      error:
+        example: invalid or missing authenticatGion token
+        type: string
+    type: object
+  main.authenticationTokenResponse:
+    properties:
+      authentication_token:
+        $ref: "#/definitions/main.tokenSchema"
+    type: object
+  main.conflictErrorResponse:
+    properties:
+      error:
+        example: unable to update the record due to an edit conflict, please try again
+        type: string
+    type: object
+  main.createAuthenticationTokenRequest:
+    properties:
+      email:
+        example: vin@example.com
+        type: string
+      password:
+        example: supersecret123
+        type: string
+    type: object
+  main.createMovieRequest:
+    properties:
+      genres:
+        example:
+          - fantasy
+          - adventure
+        items:
+          type: string
+        type: array
+      runtime:
+        example: 126 mins
+        type: string
+      title:
+        example: The Final Empire
+        type: string
+      year:
+        example: 2006
+        type: integer
+    type: object
+  main.errorResponse:
+    properties:
+      error:
+        example: the requested resource could not be found
+        type: string
+    type: object
+  main.healthcheckResponse:
+    properties:
+      status:
+        example: available
+        type: string
+      system_info:
+        $ref: "#/definitions/main.healthcheckSystemInfo"
+    type: object
+  main.healthcheckSystemInfo:
+    properties:
+      environment:
+        example: development
+        type: string
+      version:
+        example: 1.0.0
+        type: string
+    type: object
+  main.messageResponse:
+    properties:
+      message:
+        example: movie successfully deleted
+        type: string
+    type: object
+  main.metadataSchema:
+    properties:
+      current_page:
+        example: 1
+        type: integer
+      first_page:
+        example: 1
+        type: integer
+      last_page:
+        example: 3
+        type: integer
+      page_size:
+        example: 20
+        type: integer
+      total_records:
+        example: 45
+        type: integer
+    type: object
+  main.movieResponse:
+    properties:
+      movie:
+        $ref: "#/definitions/main.movieSchema"
+    type: object
+  main.movieSchema:
+    properties:
+      genres:
+        example:
+          - fantasy
+          - adventure
+        items:
+          type: string
+        type: array
+      id:
+        example: 1
+        type: integer
+      runtime:
+        example: 126 mins
+        type: string
+      title:
+        example: The Final Empire
+        type: string
+      version:
+        example: 1
+        type: integer
+      year:
+        example: 2006
+        type: integer
+    type: object
+  main.moviesResponse:
+    properties:
+      metadata:
+        $ref: "#/definitions/main.metadataSchema"
+      movies:
+        items:
+          $ref: "#/definitions/main.movieSchema"
+        type: array
+    type: object
+  main.registerUserRequest:
+    properties:
+      email:
+        example: vin@example.com
+        type: string
+      name:
+        example: Vin
+        type: string
+      password:
+        example: supersecret123
+        type: string
+    type: object
+  main.tokenSchema:
+    properties:
+      expiry:
+        example: "2026-06-20T15:04:05Z"
+        type: string
+      token:
+        example: ABCDEFGHIJKLMNOPQRSTUVWX12
+        type: string
+    type: object
+  main.updateMovieRequest:
+    properties:
+      genres:
+        example:
+          - fantasy
+          - epic
+        items:
+          type: string
+        type: array
+      runtime:
+        example: 130 mins
+        type: string
+      title:
+        example: The Well of Ascension
+        type: string
+      year:
+        example: 2007
+        type: integer
+    type: object
+  main.userResponse:
+    properties:
+      user:
+        $ref: "#/definitions/main.userSchema"
+    type: object
+  main.userSchema:
+    properties:
+      activated:
+        example: false
+        type: boolean
+      created_at:
+        example: "2026-06-17T12:00:00Z"
+        type: string
+      email:
+        example: vin@example.com
+        type: string
+      id:
+        example: 1
+        type: integer
+      name:
+        example: Vin
+        type: string
+    type: object
+  main.validationErrorResponse:
+    properties:
+      error:
+        additionalProperties:
+          type: string
+        type: object
+    type: object
+info:
+  contact: {}
+  description: REST API for managing movies, users, activation, and authentication.
+  title: Scadrial API
+  version: "1.0"
+paths:
+  /v1/healthcheck:
+    get:
+      description: Returns API health and build information.
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/main.healthcheckResponse"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/main.errorResponse"
+      summary: Healthcheck
+      tags:
+        - healthcheck
+  /v1/movies:
+    get:
+      description:
+        Returns a paginated list of movies with optional search and sorting
+        filters.
+      parameters:
+        - description: Movie title full-text search
+          in: query
+          name: title
+          type: string
+        - description: Comma-separated genres
+          in: query
+          name: genres
+          type: string
+        - default: 1
+          description: Page number
+          in: query
+          name: page
+          type: integer
+        - default: 20
+          description: Items per page
+          in: query
+          name: page_size
+          type: integer
+        - default: id
+          description: "Sort field: id, title, year, runtime, -id, -title, -year, -runtime"
+          in: query
+          name: sort
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/main.moviesResponse"
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: "#/definitions/main.authErrorResponse"
+        "403":
+          description: Forbidden
+          schema:
+            $ref: "#/definitions/main.errorResponse"
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: "#/definitions/main.validationErrorResponse"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/main.errorResponse"
+      security:
+        - BearerAuth: []
+      summary: List movies
+      tags:
+        - movies
+    post:
+      consumes:
+        - application/json
+      description: Creates a new movie record.
+      parameters:
+        - description: Movie payload
+          in: body
+          name: input
+          required: true
+          schema:
+            $ref: "#/definitions/main.createMovieRequest"
+      produces:
+        - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: "#/definitions/main.movieResponse"
+        "400":
+          description: Bad Request
+          schema:
+            $ref: "#/definitions/main.errorResponse"
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: "#/definitions/main.authErrorResponse"
+        "403":
+          description: Forbidden
+          schema:
+            $ref: "#/definitions/main.errorResponse"
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: "#/definitions/main.validationErrorResponse"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/main.errorResponse"
+      security:
+        - BearerAuth: []
+      summary: Create movie
+      tags:
+        - movies
+  /v1/movies/{id}:
+    delete:
+      description: Deletes a movie by ID.
+      parameters:
+        - description: Movie ID
+          in: path
+          name: id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/main.messageResponse"
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: "#/definitions/main.authErrorResponse"
+        "403":
+          description: Forbidden
+          schema:
+            $ref: "#/definitions/main.errorResponse"
+        "404":
+          description: Not Found
+          schema:
+            $ref: "#/definitions/main.errorResponse"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/main.errorResponse"
+      security:
+        - BearerAuth: []
+      summary: Delete movie
+      tags:
+        - movies
+    get:
+      description: Fetches a single movie by ID.
+      parameters:
+        - description: Movie ID
+          in: path
+          name: id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/main.movieResponse"
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: "#/definitions/main.authErrorResponse"
+        "403":
+          description: Forbidden
+          schema:
+            $ref: "#/definitions/main.errorResponse"
+        "404":
+          description: Not Found
+          schema:
+            $ref: "#/definitions/main.errorResponse"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/main.errorResponse"
+      security:
+        - BearerAuth: []
+      summary: Get movie
+      tags:
+        - movies
+    patch:
+      consumes:
+        - application/json
+      description: Partially updates a movie by ID.
+      parameters:
+        - description: Movie ID
+          in: path
+          name: id
+          required: true
+          type: integer
+        - description: Expected current movie version for optimistic locking
+          in: header
+          name: X-Expected-Version
+          type: string
+        - description: Movie fields to update
+          in: body
+          name: input
+          required: true
+          schema:
+            $ref: "#/definitions/main.updateMovieRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/main.movieResponse"
+        "400":
+          description: Bad Request
+          schema:
+            $ref: "#/definitions/main.errorResponse"
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: "#/definitions/main.authErrorResponse"
+        "403":
+          description: Forbidden
+          schema:
+            $ref: "#/definitions/main.errorResponse"
+        "404":
+          description: Not Found
+          schema:
+            $ref: "#/definitions/main.errorResponse"
+        "409":
+          description: Conflict
+          schema:
+            $ref: "#/definitions/main.conflictErrorResponse"
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: "#/definitions/main.validationErrorResponse"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/main.errorResponse"
+      security:
+        - BearerAuth: []
+      summary: Update movie
+      tags:
+        - movies
+  /v1/tokens/authentication:
+    post:
+      consumes:
+        - application/json
+      description: Authenticates a user and returns a bearer token.
+      parameters:
+        - description: Login credentials
+          in: body
+          name: input
+          required: true
+          schema:
+            $ref: "#/definitions/main.createAuthenticationTokenRequest"
+      produces:
+        - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: "#/definitions/main.authenticationTokenResponse"
+        "400":
+          description: Bad Request
+          schema:
+            $ref: "#/definitions/main.errorResponse"
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: "#/definitions/main.errorResponse"
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: "#/definitions/main.validationErrorResponse"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/main.errorResponse"
+      summary: Create authentication token
+      tags:
+        - authentication
+  /v1/users:
+    post:
+      consumes:
+        - application/json
+      description: Creates a new user account and sends an activation email.
+      parameters:
+        - description: Registration payload
+          in: body
+          name: input
+          required: true
+          schema:
+            $ref: "#/definitions/main.registerUserRequest"
+      produces:
+        - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: "#/definitions/main.userResponse"
+        "400":
+          description: Bad Request
+          schema:
+            $ref: "#/definitions/main.errorResponse"
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: "#/definitions/main.validationErrorResponse"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/main.errorResponse"
+      summary: Register user
+      tags:
+        - users
+  /v1/users/activated:
+    put:
+      consumes:
+        - application/json
+      description: Activates a user account using an activation token.
+      parameters:
+        - description: Activation token
+          in: body
+          name: input
+          required: true
+          schema:
+            $ref: "#/definitions/main.activateUserRequest"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/main.userResponse"
+        "400":
+          description: Bad Request
+          schema:
+            $ref: "#/definitions/main.errorResponse"
+        "409":
+          description: Conflict
+          schema:
+            $ref: "#/definitions/main.conflictErrorResponse"
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: "#/definitions/main.validationErrorResponse"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/main.errorResponse"
+      summary: Activate user
+      tags:
+        - users
+schemes:
+  - http
+  - https
+securityDefinitions:
+  BearerAuth:
+    description: "Enter the bearer token as: Bearer <token>"
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

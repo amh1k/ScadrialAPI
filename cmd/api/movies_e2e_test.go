@@ -17,7 +17,7 @@ import (
 func createAuthenticatedUser(t *testing.T, testApp *application, permissions ...string) string {
 	user := &data.User{
 		Name:      "Test User",
-		Email:    	"test@example.com",
+		Email:     "test@example.com",
 		Activated: true,
 	}
 	if err := user.Password.Set("12345678"); err != nil {
