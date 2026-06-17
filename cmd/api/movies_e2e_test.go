@@ -56,10 +56,8 @@ func TestMovieShow(t *testing.T) {
 	testDB := newTestDB(t)
 	testApp := newE2EApplication(t, testDB)
 	ts := newTestServer(t, testApp.routes())
-
 	token := createAuthenticatedUser(t, testApp, "movies:read")
 	movie := createTestMovie(t, testApp)
-
 	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/v1/movies/%d", ts.URL, movie.ID), nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 

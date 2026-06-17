@@ -1,3 +1,5 @@
+//go:build e2e
+
 package main
 
 import (
@@ -7,6 +9,7 @@ import (
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
 var sharedTestDB *sql.DB
