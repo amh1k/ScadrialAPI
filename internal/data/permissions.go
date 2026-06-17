@@ -18,6 +18,10 @@ func (p Permissions) Include(code string) bool {
 type PermissionModel struct {
 	DB *sql.DB
 }
+type PermissionModelInterface interface {
+	GetAllForUser(userID int64)(Permissions, error)
+	AddForUser(userID int64, codes ...string) error
+}
 
 func (m PermissionModel) GetAllForUser(userID int64) (Permissions, error) {
 	query := `

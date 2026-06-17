@@ -53,9 +53,14 @@ func TestRateLimit(t *testing.T) {
 }
 
 func TestAuthenticate(t *testing.T) {
-	mockUserModel := &mocks.UserModel{}
+	mockUserModel := &mocks.UserModel{
+		GetForTokenFn: func(scope, token string) (*data.User, error) {
+					return &data.User{ID: 1, Activated: true}, nil
+				},
+	}
+	mockPermissionModel := &mocks.PermissionModel{}
 	var gotUser *data.User
-	testApp := NewTestApplication(t, mockUserModel)
+	testApp := NewTestApplication(t, mockUserModel, mockPermissionModel)
 	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		gotUser = testApp.contextGetUser(r)
 		w.WriteHeader(http.StatusOK)
@@ -74,4 +79,105 @@ func TestAuthenticate(t *testing.T) {
 		t.Fatalf("expected an authenticated user in context, got %#v", gotUser)
 	}
 
+}
+
+func TestAuthenticateAndPermissionPipeline(t *testing.T) {
+	tests := []struct {
+		name       string
+		authHeader string
+		userMock   *mocks.UserModel
+		permMock   *mocks.PermissionModel
+		wantStatus int
+	}{
+		{
+			name:       "no authorization header",
+			authHeader: "",
+			userMock:   &mocks.UserModel{},
+			permMock:   &mocks.PermissionModel{},
+			wantStatus: http.StatusUnauthorized,
+		},
+		{
+			name:       "valid token, has permission",
+			authHeader: "Bearer " + tokenTest,
+			userMock: &mocks.UserModel{
+				GetForTokenFn: func(scope, token string) (*data.User, error) {
+					return &data.User{ID: 1, Activated: true}, nil
+				},
+			},
+			permMock: &mocks.PermissionModel{
+				GetAllForUserFn: func(userID int64) (data.Permissions, error) {
+					return data.Permissions{"movies:read"}, nil
+				},
+			},
+			wantStatus: http.StatusOK,
+		},
+		{
+			name:       "valid token, lacks permission",
+			authHeader: "Bearer " + tokenTest,
+			userMock: &mocks.UserModel{
+				GetForTokenFn: func(scope, token string) (*data.User, error) {
+					return &data.User{ID: 1, Activated: true}, nil
+				},
+			},
+			permMock: &mocks.PermissionModel{
+				GetAllForUserFn: func(userID int64) (data.Permissions, error) {
+					return data.Permissions{}, nil
+				},
+			},
+			wantStatus: http.StatusForbidden,
+		},
+		{
+			name:       "valid token, inactive user",
+			authHeader: "Bearer " + tokenTest,
+			userMock: &mocks.UserModel{
+				GetForTokenFn: func(scope, token string) (*data.User, error) {
+					return &data.User{ID: 1, Activated: false}, nil
+				},
+			},
+			permMock:   &mocks.PermissionModel{}, // never reached
+			wantStatus: http.StatusForbidden,
+		},
+		{
+			name:       "malformed authorization header",
+			authHeader: "Token abc",
+			userMock:   &mocks.UserModel{},
+			permMock:   &mocks.PermissionModel{},
+			wantStatus: http.StatusUnauthorized,
+		},
+		{
+			name:       "token fails validation (too short)",
+			authHeader: "Bearer short",
+			userMock:   &mocks.UserModel{},
+			permMock:   &mocks.PermissionModel{},
+			wantStatus: http.StatusUnauthorized,
+		},
+		{
+			name:       "token not found in store",
+			authHeader: "Bearer " + tokenTest,
+			userMock: &mocks.UserModel{
+				GetForTokenFn: func(scope, token string) (*data.User, error) {
+					return nil, data.ErrRecordNotFound
+				},
+			},
+			permMock:   &mocks.PermissionModel{},
+			wantStatus: http.StatusUnauthorized,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			app := NewTestApplication(t,tt.userMock, tt.permMock)
+			next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(http.StatusOK)
+			})
+			handler := app.authenticate(app.requirePermission("movies:read", next))
+			req := httptest.NewRequest(http.MethodGet, "/", nil)
+			if tt.authHeader != "" {
+				req.Header.Set("Authorization", tt.authHeader)
+			}
+			rr := httptest.NewRecorder()
+			handler.ServeHTTP(rr, req)
+			assert.Equal(t, rr.Code, tt.wantStatus)
+		})
+	}
 }

@@ -13,7 +13,7 @@ type Models struct {
 	Movies      MovieModelInterface
 	Users       UserModelInterface
 	Tokens      TokenModel
-	Permissions PermissionModel
+	Permissions PermissionModelInterface
 }
 
 func NewModels(movies MovieModelInterface, users UserModelInterface, tokens TokenModel, permission PermissionModel) Models {

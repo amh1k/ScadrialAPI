@@ -8,7 +8,7 @@ import (
 	"scadrialapi.abdulmoiz.net/internal/data"
 	"scadrialapi.abdulmoiz.net/internal/mailer"
 )
-func NewTestApplication(t *testing.T, mockUsers data.UserModelInterface) *application {
+func NewTestApplication(t *testing.T, mockUsers data.UserModelInterface, mockPermissions data.PermissionModelInterface) *application {
 	cfg := config{}
 	cfg.limiter.enabled = false
 
@@ -17,6 +17,7 @@ func NewTestApplication(t *testing.T, mockUsers data.UserModelInterface) *applic
 		logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
 		models: data.Models{
 			Users: mockUsers,
+			Permissions: mockPermissions,
 		},
 		mailer: mailer.New("", 25, "", "", ""),
 	}
