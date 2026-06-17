@@ -28,3 +28,14 @@ func(m *UserModel)GetForToken(tokenScope, tokenPlaintext string)(*data.User, err
 	}
 	return &userMock, nil
 }
+func (m *UserModel)GetByEmail(email string) (*data.User, error) {
+	return &data.User{}, nil
+}
+func (m *UserModel)Insert(*data.User) error {
+	return nil
+}
+
+
+func(m *UserModel)Update(*data.User) error {
+	return nil
+}

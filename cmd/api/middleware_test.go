@@ -5,7 +5,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"scadrialapi.abdulmoiz.net/internal/assert"
+	"scadrialapi.abdulmoiz.net/internal/data"
 	"scadrialapi.abdulmoiz.net/internal/data/mocks"
+)
+var(
+	tokenTest = "A7kP9mX2qR8tY4nL6wC3vB1dEf"
 )
 
 
@@ -48,9 +53,25 @@ func TestRateLimit(t *testing.T) {
 }
 
 func TestAuthenticate(t *testing.T) {
-	mockUser := mocks.UserModel{}
-	mockMovie := mocks.MovieModel{}
-	app := newApplication(mockMovie, mockUser)
-
+	mockUserModel := &mocks.UserModel{}
+	var gotUser *data.User
+	testApp := NewTestApplication(t, mockUserModel)
+	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotUser = testApp.contextGetUser(r)
+		w.WriteHeader(http.StatusOK)
+	})
+	handler := testApp.authenticate(next)
+	authFunc := func() int{
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		req.Header.Add("Authorization", "Bearer A7kP9mX2qR8tY4nL6wC3vB1dEf")
+		rr := httptest.NewRecorder()
+		handler.ServeHTTP(rr, req)
+		return rr.Code
+	}
+	code := authFunc()
+	assert.Equal(t, code, http.StatusOK)
+	if gotUser == nil || gotUser == data.AnonymousUser {
+		t.Fatalf("expected an authenticated user in context, got %#v", gotUser)
+	}
 
 }
