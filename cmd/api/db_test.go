@@ -51,6 +51,14 @@ func newTestDB(t *testing.T) *sql.DB {
 		if err != nil {
 			t.Fatalf("failed to reset test db: %v", err)
 		}
+
+		_, err = sharedTestDB.Exec(`
+			INSERT INTO permissions (code)
+			VALUES ('movies:read'), ('movies:write')
+		`)
+		if err != nil {
+			t.Fatalf("failed to reseed permissions: %v", err)
+		}
 	})
 	return sharedTestDB
 }

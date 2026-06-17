@@ -17,10 +17,10 @@ import (
 func createAuthenticatedUser(t *testing.T, testApp *application, permissions ...string) string {
 	user := &data.User{
 		Name:      "Test User",
-		Email:     fmt.Sprintf("test-%d@example.com", time.Now().UnixNano()),
+		Email:    	"test@example.com",
 		Activated: true,
 	}
-	if err := user.Password.Set("pa55word123"); err != nil {
+	if err := user.Password.Set("12345678"); err != nil {
 		t.Fatal(err)
 	}
 	if err := testApp.models.Users.Insert(user); err != nil {
@@ -58,6 +58,8 @@ func TestMovieShow(t *testing.T) {
 	ts := newTestServer(t, testApp.routes())
 	token := createAuthenticatedUser(t, testApp, "movies:read")
 	movie := createTestMovie(t, testApp)
+	// fmt.Println(token)
+	// fmt.Println(movie.ID)
 	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/v1/movies/%d", ts.URL, movie.ID), nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 
@@ -85,7 +87,6 @@ func TestMovieUpdate(t *testing.T) {
 	testDB := newTestDB(t)
 	testApp := newE2EApplication(t, testDB)
 	ts := newTestServer(t, testApp.routes())
-
 	token := createAuthenticatedUser(t, testApp, "movies:write")
 	movie := createTestMovie(t, testApp)
 

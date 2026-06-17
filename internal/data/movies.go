@@ -105,6 +105,7 @@ func (m MovieModel) Update(movie *Movie) error {
 		movie.Runtime,
 		pq.Array(movie.Genres),
 		movie.ID,
+		movie.Version,
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -115,6 +116,7 @@ func (m MovieModel) Update(movie *Movie) error {
 
 			return ErrEditConflict
 		default:
+			fmt.Println(err)
 
 			return err
 		}

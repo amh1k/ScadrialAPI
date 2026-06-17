@@ -82,11 +82,14 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 
 	}
 	movie, err := app.models.Movies.Get(id)
+	
 	if err != nil {
+		
 		switch {
 		case errors.Is(err, data.ErrRecordNotFound):
 			app.notFoundResponse(w, r)
 		default:
+			
 			app.serverErrorResponse(w, r, err)
 		}
 		return
@@ -105,6 +108,7 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 	}
 	err = app.readJSON(w, r, &input)
 	if err != nil {
+		
 		app.badRequestResponse(w, r, err)
 		return
 
@@ -134,6 +138,7 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 		case errors.Is(err, data.ErrEditConflict):
 			app.editConflictResponse(w, r)
 		default:
+			
 			app.serverErrorResponse(w, r, err)
 		}
 		return
