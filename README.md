@@ -159,6 +159,14 @@ curl http://localhost:4000/v1/movies?page=1&page_size=10 \
 
 For the full request/response schema and interactive exploration, use Swagger at `/swagger/index.html` or inspect [`cmd/api/docs/swagger.yaml`](./cmd/api/docs/swagger.yaml).
 
+### Swagger Preview
+
+Swagger UI exposes the available route groups, authentication-aware endpoints, and generated request/response models directly from the Go annotations.
+
+![Swagger overview](./cmd/api/docs/images/260617_21h32m19s_screenshot.png)
+
+![Swagger models](./cmd/api/docs/images/260617_21h35m58s_screenshot.png)
+
 ## Development Workflow
 
 The repo already includes a practical [`Makefile`](./Makefile) for common tasks.
