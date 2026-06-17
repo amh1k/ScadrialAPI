@@ -5,7 +5,7 @@ import (
 	"runtime/debug"
 )
 
-func Version()string {
+func Version() string {
 	var revision string
 	var modified bool
 	bi, ok := debug.ReadBuildInfo()

@@ -21,11 +21,10 @@ type UserModel struct {
 	DB *sql.DB
 }
 type UserModelInterface interface {
-	GetForToken(tokenScope, tokenPlaintext string)(*User, error)
+	GetForToken(tokenScope, tokenPlaintext string) (*User, error)
 	Insert(user *User) error
 	Update(user *User) error
 	GetByEmail(email string) (*User, error)
-	
 }
 type User struct {
 	ID        int64     `json:"id"`

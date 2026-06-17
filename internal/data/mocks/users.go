@@ -3,12 +3,12 @@ package mocks
 import (
 	"scadrialapi.abdulmoiz.net/internal/data"
 )
+
 type UserModel struct {
-	GetForTokenFn func(tokenScope, tokenPlaintext string)(*data.User, error)
+	GetForTokenFn func(tokenScope, tokenPlaintext string) (*data.User, error)
 }
 
-
-func(m *UserModel)GetForToken(tokenScope, tokenPlaintext string)(*data.User, error) {
+func (m *UserModel) GetForToken(tokenScope, tokenPlaintext string) (*data.User, error) {
 	// var password data.Password
 	// pointerString := "12345678"
 	// err := password.Set(pointerString)
@@ -16,25 +16,24 @@ func(m *UserModel)GetForToken(tokenScope, tokenPlaintext string)(*data.User, err
 	// 	return nil, err
 	// }
 	// userMock := data.User{
-	// 	ID: 1,     
-	// 	CreatedAt :time.Now(), 
+	// 	ID: 1,
+	// 	CreatedAt :time.Now(),
 	// 	Name:     "abc",
-	// 	Email:     "abc@gmail.com",   
+	// 	Email:     "abc@gmail.com",
 	// 	Password: password  ,
-	// 	Activated: true,      
-	// 	Version:   1 ,  
-	return m.GetForTokenFn(tokenScope, tokenPlaintext)    
+	// 	Activated: true,
+	// 	Version:   1 ,
+	return m.GetForTokenFn(tokenScope, tokenPlaintext)
 	// }
 	// return &userMock, nil
 }
-func (m *UserModel)GetByEmail(email string) (*data.User, error) {
+func (m *UserModel) GetByEmail(email string) (*data.User, error) {
 	return &data.User{}, nil
 }
-func (m *UserModel)Insert(*data.User) error {
+func (m *UserModel) Insert(*data.User) error {
 	return nil
 }
 
-
-func(m *UserModel)Update(*data.User) error {
+func (m *UserModel) Update(*data.User) error {
 	return nil
 }

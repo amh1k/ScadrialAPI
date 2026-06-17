@@ -9,10 +9,10 @@ import (
 	"scadrialapi.abdulmoiz.net/internal/data"
 	"scadrialapi.abdulmoiz.net/internal/data/mocks"
 )
-var(
+
+var (
 	tokenTest = "A7kP9mX2qR8tY4nL6wC3vB1dEf"
 )
-
 
 func TestRateLimit(t *testing.T) {
 	app := &application{}
@@ -55,8 +55,8 @@ func TestRateLimit(t *testing.T) {
 func TestAuthenticate(t *testing.T) {
 	mockUserModel := &mocks.UserModel{
 		GetForTokenFn: func(scope, token string) (*data.User, error) {
-					return &data.User{ID: 1, Activated: true}, nil
-				},
+			return &data.User{ID: 1, Activated: true}, nil
+		},
 	}
 	mockPermissionModel := &mocks.PermissionModel{}
 	var gotUser *data.User
@@ -66,7 +66,7 @@ func TestAuthenticate(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 	})
 	handler := testApp.authenticate(next)
-	authFunc := func() int{
+	authFunc := func() int {
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		req.Header.Add("Authorization", "Bearer A7kP9mX2qR8tY4nL6wC3vB1dEf")
 		rr := httptest.NewRecorder()
@@ -166,7 +166,7 @@ func TestAuthenticateAndPermissionPipeline(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			app := NewTestApplication(t,tt.userMock, tt.permMock)
+			app := NewTestApplication(t, tt.userMock, tt.permMock)
 			next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
 			})

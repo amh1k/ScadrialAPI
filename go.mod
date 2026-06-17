@@ -4,6 +4,8 @@ go 1.26.3
 
 require (
 	github.com/go-mail/mail/v2 v2.3.0
+	github.com/golang-migrate/migrate v3.5.4+incompatible
+	github.com/golang-migrate/migrate/v4 v4.19.1
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/lib/pq v1.12.3
 	github.com/tomasen/realip v0.0.0-20180522021738-f0c99a92ddce

@@ -1,3 +1,3 @@
 package mocks
 
-type MovieModel struct {}
+type MovieModel struct{}

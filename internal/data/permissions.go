@@ -19,7 +19,7 @@ type PermissionModel struct {
 	DB *sql.DB
 }
 type PermissionModelInterface interface {
-	GetAllForUser(userID int64)(Permissions, error)
+	GetAllForUser(userID int64) (Permissions, error)
 	AddForUser(userID int64, codes ...string) error
 }
 

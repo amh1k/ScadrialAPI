@@ -8,7 +8,6 @@ import (
 	"scadrialapi.abdulmoiz.net/internal/data/mocks"
 )
 
-
 func TestHealthCheck(t *testing.T) {
 	userMock := mocks.UserModel{}
 	permissionMock := mocks.PermissionModel{}

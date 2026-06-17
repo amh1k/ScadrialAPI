@@ -14,25 +14,25 @@ func TestValidator(t *testing.T) {
 
 	})
 	t.Run("Add Error", func(t *testing.T) {
-		validatorTest.AddError("abc","xyz")
+		validatorTest.AddError("abc", "xyz")
 		res := validatorTest.Valid()
 		assert.Equal(t, res, false)
 	})
 	t.Run("Unique values", func(t *testing.T) {
-		tests := [] struct {
+		tests := []struct {
 			name string
-			arr [] int
+			arr  []int
 			want bool
 		}{
 			{
-			name: "Unique array of int",
-			arr: []int{1,2,3,4},
-			want: true,
+				name: "Unique array of int",
+				arr:  []int{1, 2, 3, 4},
+				want: true,
 			},
 			{
-			name: "Non unique array of int",
-			arr: []int{1,2,4,4},
-			want: false,
+				name: "Non unique array of int",
+				arr:  []int{1, 2, 4, 4},
+				want: false,
 			},
 		}
 		for _, tt := range tests {
@@ -45,5 +45,4 @@ func TestValidator(t *testing.T) {
 
 	})
 
-	
 }

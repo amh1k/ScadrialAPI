@@ -20,7 +20,7 @@ import (
 )
 
 var (
-version = vcs.Version()
+	version = vcs.Version()
 )
 
 type config struct {
@@ -56,11 +56,10 @@ type application struct {
 	mailer mailer.Mailer
 	// sync.WaitGroup type is a valid, useable, sync.WaitGroup with a 'counter' value of 0,
 	// so we don't need to do anything else to initialize it before we can use it.
-	wg sync.WaitGroup
-	users data.UserModelInterface
+	wg     sync.WaitGroup
+	users  data.UserModelInterface
 	movies data.MovieModelInterface
 }
-
 
 func main() {
 	var cfg config
@@ -89,7 +88,6 @@ func main() {
 		return nil
 	})
 	displayVersion := flag.Bool("version", false, "Display version and exit")
-	
 
 	flag.Parse()
 	if *displayVersion {
@@ -122,7 +120,7 @@ func main() {
 	app := &application{
 		config: cfg,
 		logger: logger,
-		models: data.NewModels(movies, users, tokens,permissions),
+		models: data.NewModels(movies, users, tokens, permissions),
 		mailer: mailer.New(cfg.smtp.host, cfg.smtp.port, cfg.smtp.username, cfg.smtp.password, cfg.smtp.sender),
 	}
 
