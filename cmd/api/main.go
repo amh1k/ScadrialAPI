@@ -19,6 +19,17 @@ import (
 	"scadrialapi.abdulmoiz.net/internal/vcs"
 )
 
+// @title Scadrial API
+// @version 1.0
+// @description REST API for managing movies, users, activation, and authentication.
+// @BasePath /
+// @schemes http https
+//
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Enter the bearer token as: Bearer <token>
+
 var (
 	version = vcs.Version()
 )
@@ -67,10 +78,9 @@ func main() {
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
 	flag.StringVar(&cfg.db.dsn,
 		"db-dsn",
-		"postgres://scadrial:scadrial@localhost/scadrial?sslmode=disable",
+		os.Getenv("SCADRIAL_DB_DSN"),
 		"PostgreSQL DSN",
 	)
-	//flag.StringVar(&cfg.db.dsn, "db-dsn", os.Getenv("GREENLIGHT_DB_DSN"), "PostgreSQL DSN")
 	flag.IntVar(&cfg.db.maxOpenConns, "db-max-open-conns", 25, "PostgreSQL max open connections")
 	flag.IntVar(&cfg.db.maxIdleConns, "db-max-idle-conns", 25, "PostgreSQL max idle connections")
 	flag.DurationVar(&cfg.db.maxIdleTime, "db-max-idle-time", 15*time.Minute, "PostgreSQL max connection idle time")
@@ -78,11 +88,11 @@ func main() {
 	flag.IntVar(&cfg.limiter.burst, "limiter-burst", 4, "Rate limiter maximum burst")
 	flag.BoolVar(&cfg.limiter.enabled, "limiter-enabled", true, "Enable rate limiter")
 
-	flag.StringVar(&cfg.smtp.host, "smtp-host", "sandbox.smtp.mailtrap.io", "SMTP host")
+	flag.StringVar(&cfg.smtp.host, "smtp-host", envOrDefault("SMTP_HOST", "sandbox.smtp.mailtrap.io"), "SMTP host")
 	flag.IntVar(&cfg.smtp.port, "smtp-port", 25, "SMTP port")
-	flag.StringVar(&cfg.smtp.username, "smtp-username", "7cf8f2fed40a0a", "SMTP username")
-	flag.StringVar(&cfg.smtp.password, "smtp-password", "5034b0211ca310", "SMTP password")
-	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "ScadrialApi <no-reply@scadrialapi.abdulmoiz.net>", "SMTP sender")
+	flag.StringVar(&cfg.smtp.username, "smtp-username", os.Getenv("SMTP_USERNAME"), "SMTP username")
+	flag.StringVar(&cfg.smtp.password, "smtp-password", os.Getenv("SMTP_PASSWORD"), "SMTP password")
+	flag.StringVar(&cfg.smtp.sender, "smtp-sender", envOrDefault("SMTP_SENDER", "ScadrialApi <no-reply@scadrialapi.abdulmoiz.net>"), "SMTP sender")
 	flag.Func("cors-trusted-origins", "Trusted CORS origins (space separated)", func(val string) error {
 		cfg.cors.trustedOrigins = strings.Fields(val)
 		return nil
@@ -147,4 +157,12 @@ func openDB(cfg config) (*sql.DB, error) {
 		return nil, err
 	}
 	return db, nil
+}
+
+func envOrDefault(key, fallback string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		return fallback
+	}
+	return value
 }

@@ -1,2 +1,5 @@
 .envrc
+.env
+.env.*
+!.env.example
 bin/

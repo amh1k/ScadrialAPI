@@ -44,15 +44,15 @@ metrics → recoverPanic → enableCORS → rateLimit → authenticate → route
 1. **SMTP credentials are hardcoded in `main.go` (line 81-82)**
    ```go
    // BAD — credentials in source code
-   flag.StringVar(&cfg.smtp.username, "smtp-username", "7cf8f2fed40a0a", ...)
-   flag.StringVar(&cfg.smtp.password, "smtp-password", "5034b0211ca310", ...)
+   flag.StringVar(&cfg.smtp.username, "smtp-username", os.Getenv("SMTP_USERNAME"), ...)
+   flag.StringVar(&cfg.smtp.password, "smtp-password", os.Getenv("SMTP_PASSWORD"), ...)
    ```
    **Fix**: Remove defaults, load from env vars only: `os.Getenv("SMTP_USERNAME")`.
 
 2. **DSN default in `main.go` is hardcoded (line 68)**
    ```go
    // The commented-out env var version (line 71) is the right approach
-   flag.StringVar(&cfg.db.dsn, "db-dsn", "postgres://scadrial:scadrial@localhost/...", ...)
+   flag.StringVar(&cfg.db.dsn, "db-dsn", os.Getenv("SCADRIAL_DB_DSN"), ...)
    ```
    **Fix**: Uncomment and use `os.Getenv("SCADRIAL_DB_DSN")` as the default.
 
